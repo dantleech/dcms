@@ -1,19 +1,16 @@
 Dissonant CMS
 =============
 
-The dissonant CMS is a *fully dynamic* and *extremely lightweight* CMS
-which leverages the full power of PHPCR.
+The dissonant CMS is a *fully dynamic*, *hierachical* CMS which leverages the
+native power of PHPCR with a lightweight CMS layer.
 
-Extremely lightweight
----------------------
+Principles:
 
-The DCMS application only consists of the bare minimum required to fire
-transform a HTTP Request into a Response. There is no admin interface.
-
-Fully dynamic
--------------
-
-Instead it is intended that the user use something like `phpcr-shell` to
-create and administer the system. A conventional administrative interface
-can be created from the ground up *within* the CMS (or maybe simply
-*imported*).
+- **Cascading resource resolution**: Sites can be nested, each site can define
+  its own resources. When a resource is missing it will try the parent site
+  and so on.
+- **No native administrative interface**: Because of the nature of PHPCR, all
+  administration *can* be done via the PHPCR shell. Administration interfaces
+  can, however, be created or imported from within the shell.
+- **All potentially mutable data is a resource**: This includes templates and
+  configuration. All resources are stored in PHPCR.
