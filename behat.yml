@@ -1,3 +1,13 @@
 default:
     extensions:
         Behat\Symfony2Extension\Extension: ~
+        Behat\MinkExtension\Extension:
+            sessions:
+                default:
+                    symfony2: ~
+
+
+    suites:
+        core:
+            type: symfony_bundle
+            bundle: 'DcmsCoreBundle'

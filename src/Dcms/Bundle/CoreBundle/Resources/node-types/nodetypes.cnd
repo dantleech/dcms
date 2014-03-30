@@ -13,25 +13,34 @@
 
 [dcms:mental:article] > dcms:mental, mix:title, mix:versionable, mix:referenceable, mix:lastModified, mix:created
 
+[dcms:mental:page] > dcms:mental, mix:title, mix:referenceable, mix:lastModified, mix:created
+- body (string)
+
 [dcms:mentalFolder]
 + * (dcms:mental)
 
 [dcms:endpointFolder]
-+ * (dcms:mental)
++ * (dcms:endpoint)
 
 [dcms:endpoint] > mix:referenceable
-- mental (name) mandatory
++ mental (dcms:mental)
 
 [dcms:site] > mix:referenceable, mix:lastModified, mix:created
-- host (string) mandatory
 + endpoints (dcms:endpointFolder) autocreated
 + mentals (dcms:mentalFolder) autocreated
 
 [dcms:siteFolder]
 + * (dcms:site)
 
+[dcms:host]
+- site (name) mandatory
+
+[dcms:hostFolder]
++ * (dcms:host)
+
 [dcms:root]
 + sites (dcms:siteFolder) autocreated
++ hosts (dcms:hostFolder) autocreated
 + config (dcms:config) autocreated
 
 [dcms:config]
