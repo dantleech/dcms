@@ -21,7 +21,6 @@
 
 [dcms:endpoint] > mix:referenceable
 - mental (name) mandatory
-- content (reference)
 
 [dcms:site] > mix:referenceable, mix:lastModified, mix:created
 - host (string) mandatory

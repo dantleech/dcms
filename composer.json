@@ -18,12 +18,20 @@
         "symfony/assetic-bundle": "~2.3",
         "symfony/swiftmailer-bundle": "~2.3",
         "symfony/monolog-bundle": "~2.4",
+        "symfony-cmf/routing": "1.1.0",
         "sensio/distribution-bundle": "~2.3",
         "sensio/framework-extra-bundle": "~3.0",
         "sensio/generator-bundle": "~2.3",
         "incenteev/composer-parameter-handler": "~2.0",
         "doctrine/dbal": "2.4",
         "phpcr/phpcr-utils": "dev-master"
+    },
+    "require-dev": {
+         "phpspec/phpspec": "2.0.*@dev",
+         "behat/behat": "3.0.*@dev",
+         "behat/symfony2-extension": "2.0.*@dev",
+         "behat/mink-extension": "2.0.*@dev",
+         "behat/mink-browserkit-driver": "1.2.*@dev"
     },
     "scripts": {
         "post-install-cmd": [
