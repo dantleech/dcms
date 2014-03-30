@@ -2,6 +2,7 @@ default:
     extensions:
         Behat\Symfony2Extension\Extension: ~
         Behat\MinkExtension\Extension:
+            show_cmd: firefox %s
             sessions:
                 default:
                     symfony2: ~

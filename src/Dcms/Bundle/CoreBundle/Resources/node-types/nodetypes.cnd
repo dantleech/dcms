@@ -7,17 +7,18 @@
 [dcms:mentalFolder]
 + * (dcms:mental)
 
-[dcms:mental]
+[dcms:mental] > mix:title, mix:referenceable, mix:lastModified, mix:created
 - name (string)
 - template (name)
 
 [dcms:mental:article] > dcms:mental, mix:title, mix:versionable, mix:referenceable, mix:lastModified, mix:created
 
-[dcms:mental:page] > dcms:mental, mix:title, mix:referenceable, mix:lastModified, mix:created
+[dcms:mental:page] > dcms:mental
 - body (string)
 
-[dcms:mentalFolder]
-+ * (dcms:mental)
+[dcms:mental:list] > dcms:mental
+- dataProvider (reference)
+- template (name)
 
 [dcms:endpointFolder]
 + * (dcms:endpoint)
@@ -33,7 +34,7 @@
 + * (dcms:site)
 
 [dcms:host]
-- site (name) mandatory
+- site (reference)
 
 [dcms:hostFolder]
 + * (dcms:host)
