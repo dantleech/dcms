@@ -5,13 +5,13 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="dcms.router.matcher.class">Dcms\Bundle\CoreBundle\Router\EndpointMatcher</parameter>
+        <parameter key="dcms.site.context.class">Dcms\Bundle\CoreBundle\Site\SiteContext</parameter>
     </parameters>
 
     <services>
-        <service id="dcms.router.matcher" class="%dcms.router.matcher.class%">
-            <call method="addLogger">
-                <argument type="service" id="doctrine.dbal.logger" /PathPath>
-            </call>
+        <service id="dcms.site.context" class="%dcms.site.context.class%">
         </service>
+    </services>
+</container>
+
 

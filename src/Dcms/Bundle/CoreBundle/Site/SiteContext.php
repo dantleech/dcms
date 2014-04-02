@@ -30,7 +30,7 @@ class SiteContext
 
     public function getAbsPathFor($relPath)
     {
-        $basePath = $this->getSite()->getPath();
+        $basePath = $this->getSite()->getNode()->getPath();
         return $basePath . '/' . $relPath;
     }
 }

@@ -12,6 +12,7 @@ use Dcms\Bundle\CoreBundle\Mental\MentalContainer;
 use Dcms\Bundle\CoreBundle\Website\Exception\WebsiteNotFoundException;
 use Dcms\Bundle\CoreBundle\Site\SiteContext;
 use Dcms\Bundle\CoreBundle\Site\Site;
+use Dcms\Bundle\CoreBundle\Router\Exception\SiteNotFoundException;
 
 class EndpointMatcher implements RequestMatcherInterface
 {
@@ -34,12 +35,13 @@ class EndpointMatcher implements RequestMatcherInterface
 
     public function matchRequest(Request $request)
     {
-        $host      = $request->getHost();
-        $pathInfo  = $request->getPathInfo();
-        $hostsPath = $this->config->getHostsPath();
+        $host        = $request->getHost();
+        $defaultHost = $this->config->getDefaultHost();
+        $pathInfo    = $request->getPathInfo();
+        $hostsPath   = $this->config->getHostsPath();
 
-        $targetPath  = $hostsPath . '/' . $host;
-        $defaultPath = $hostsPath . '/' . $this->config->getDefaultHost();
+        $targetPath  = $this->joinPath([$hostsPath, $host]);
+        $defaultPath = $this->joinPath([$hostsPath, $defaultHost]);
 
         $phpcrSession = $this->managerRegistry->getConnection();
 
@@ -48,9 +50,13 @@ class EndpointMatcher implements RequestMatcherInterface
             $defaultPath,
         );
 
+        $siteNode = null;
+        $hostNode = null;
         foreach ($try as $path) {
             try {
-                $siteNode = $phpcrSession->getNode($path);
+                $hostNode = $phpcrSession->getNode($path);
+                $siteNodePath = $hostNode->getProperty('site')->getValue();
+                $siteNode = $phpcrSession->getNode($siteNodePath);
                 break;
             } catch (PathNotFoundException $e) {
             }
@@ -59,7 +65,7 @@ class EndpointMatcher implements RequestMatcherInterface
         if (!$siteNode) {
             throw new SiteNotFoundException(sprintf(
                 'Could not find site for host "%s" and default host "%s" was not found'
-            ), $targetPath, $defaultPath);
+            , $host, $defaultHost));
         }
 
         if ($siteNode) {
@@ -81,10 +87,9 @@ class EndpointMatcher implements RequestMatcherInterface
     {
         $phpcrSession = $this->managerRegistry->getConnection();
 
-
         $routeFolderName = $this->config->getEndpointFolderName();
         $routeFolderPath = $this->siteContext->getAbsPathFor($routeFolderName);
-        $routeNode   = $phpcrSession->getNode($routeFolderPath . $pathInfo);
+        $routeNode       = $phpcrSession->getNode($this->joinPath([$routeFolderPath, $pathInfo]));
 
         if (!$routeNode) {
             throw new ResourceNotFoundException(sprintf(
@@ -100,5 +105,20 @@ class EndpointMatcher implements RequestMatcherInterface
         $defaults   = $mental->getEndpointDefaults($routeNode);
 
         return $defaults;
+    }
+
+    private function joinPath($els)
+    {
+        return $this->normalizePath(join('/', $els));
+    }
+
+    private function normalizePath($path)
+    {
+        $path = str_replace('//', '/', $path);
+        if (substr($path, -1) == '/') {
+            $path = substr($path, 0, -1);
+        }
+
+        return $path;
     }
 }

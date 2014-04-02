@@ -6,9 +6,7 @@ framework:
     #esi:             ~
     #translator:      { fallback: "%locale%" }
     secret:          "%secret%"
-    router:
-        resource: "%kernel.root_dir%/config/routing.yml"
-        strict_requirements: ~
+    router:          false
     form:            ~
     csrf_protection: ~
     validation:      { enable_annotations: true }

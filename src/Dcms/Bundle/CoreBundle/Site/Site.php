@@ -12,4 +12,9 @@ class Site
     {
         $this->siteNode = $siteNode;
     }
+
+    public function getNode()
+    {
+        return $this->siteNode;
+    }
 }

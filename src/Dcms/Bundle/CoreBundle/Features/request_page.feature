@@ -13,5 +13,5 @@ Feature: Request a page
             | body          | Welcome to the jungle baby |
 
     Scenario: View test page
-        Given I am on "http://dantleech.com/homepage"
+        Given I am on "http://dantleech.com"
         Then show last response
