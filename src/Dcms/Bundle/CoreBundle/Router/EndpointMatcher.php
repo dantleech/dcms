@@ -13,6 +13,7 @@ use Dcms\Bundle\CoreBundle\Website\Exception\WebsiteNotFoundException;
 use Dcms\Bundle\CoreBundle\Site\SiteContext;
 use Dcms\Bundle\CoreBundle\Site\Site;
 use Dcms\Bundle\CoreBundle\Router\Exception\SiteNotFoundException;
+use Psr\Log\LoggerInterface;
 
 class EndpointMatcher implements RequestMatcherInterface
 {
@@ -20,17 +21,20 @@ class EndpointMatcher implements RequestMatcherInterface
     protected $config;
     protected $mentalContainer;
     protected $siteContext;
+    protected $logger;
 
     public function __construct(
         ManagerRegistry $managerRegistry, 
         DcmsConfig $config, 
         MentalContainer $mentalContainer,
-        SiteContext $siteContext
+        SiteContext $siteContext,
+        LoggerInterface $logger
     ) {
         $this->managerRegistry = $managerRegistry;
         $this->config          = $config;
         $this->siteContext     = $siteContext;
         $this->mentalContainer = $mentalContainer;
+        $this->logger          = $logger;
     }
 
     public function matchRequest(Request $request)
@@ -55,17 +59,34 @@ class EndpointMatcher implements RequestMatcherInterface
         foreach ($try as $path) {
             try {
                 $hostNode = $phpcrSession->getNode($path);
-                $siteNodePath = $hostNode->getProperty('site')->getValue();
+                $this->logger->info('Found host "' . $path . '"');
+
+                try {
+                    $siteNodePath = $hostNode->getProperty('site')->getValue();
+                } catch (PathNotFoundException $e) {
+                    $this->logger->info('  but site property is empty, skipping..');
+                    continue;
+                }
+            } catch (PathNotFoundException $e) {
+                $this->logger->info('Could not find host "' . $path . '"');
+                continue;
+            }
+
+            try {
                 $siteNode = $phpcrSession->getNode($siteNodePath);
+                $this->logger->info('Found site "' . $siteNodePath . '"');
                 break;
             } catch (PathNotFoundException $e) {
+                $this->logger->info('Could not find site "' . $siteNodePath . '"');
             }
         }
 
         if (!$siteNode) {
+            $this->logger->info('Could not find anything. bye!');
+
             throw new SiteNotFoundException(sprintf(
-                'Could not find site for host "%s" and default host "%s" was not found'
-            , $host, $defaultHost));
+                'Could not find a host for "%s" and default host also failed. See log for more details.'
+            , $host));
         }
 
         if ($siteNode) {
@@ -100,9 +121,11 @@ class EndpointMatcher implements RequestMatcherInterface
 
         $deaults = array();
 
-        $mentalName = $routeNode->getProperty('dcms:mental');
-        $mental     = $this->mentalContainer->getMental($mentalName);
-        $defaults   = $mental->getEndpointDefaults($routeNode);
+        $mentalNode         = $routeNode->getNode('mental');
+        $mentalNodeType     = $mentalNode->getPrimaryNodeType();
+        $mentalNodeTypeName = $mentalNodeType->getName();
+        $mental             = $this->mentalContainer->getMental($mentalNodeTypeName);
+        $defaults           = $mental->getEndpointDefaults($routeNode);
 
         return $defaults;
     }

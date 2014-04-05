@@ -2,6 +2,8 @@
 
 namespace Dcms\Bundle\CoreBundle\Mental;
 
+use PHPCR\NodeInterface;
+
 /**
  * Mental interface
  *
@@ -9,7 +11,19 @@ namespace Dcms\Bundle\CoreBundle\Mental;
  */
 interface Mental
 {
-    public function getName();
+    /**
+     * Return the node type name which corresponds to the
+     * primary node type of nodes for which this mental will
+     * handle.
+     *
+     * @return string
+     */
+    public function getTargetNodeTypeName();
 
-    public function getEndpointDefaults($routeNode);
+    /**
+     * Return route defaults for the given routeNode
+     *
+     * @param NodeInterface $routeNode
+     */
+    public function getEndpointDefaults(NodeInterface $routeNode);
 }

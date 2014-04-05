@@ -14,6 +14,7 @@ use Dcms\Bundle\CoreBundle\Mental\MentalContainer;
 use Dcms\Bundle\CoreBundle\Site\SiteContext;
 use Dcms\Bundle\CoreBundle\Site\Site;
 use Dcms\Bundle\CoreBundle\Mental\Mental;
+use Psr\Log\LoggerInterface;
 
 class EndpointMatcherSpec extends ObjectBehavior
 {
@@ -26,9 +27,10 @@ class EndpointMatcherSpec extends ObjectBehavior
         SiteContext $siteContext,
         NodeInterface $siteNode,
         NodeInterface $routeNode,
-        Site $site
+        Site $site,
+        LoggerInterface $logger
     ) {
-        $this->beConstructedWith($managerRegistry, $dcmsConfig, $mentalContainer, $siteContext);
+        $this->beConstructedWith($managerRegistry, $dcmsConfig, $mentalContainer, $siteContext, $logger);
 
         $managerRegistry->getConnection()->willReturn($phpcrSession);
 

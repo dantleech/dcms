@@ -5,12 +5,12 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="dcms.mental_container.class">Dcms\Bundle\CoreBundle\Mental\MentalContainer</parameter>
+        <parameter key="dcms_page.mental.page.class">Dcms\Bundle\PageBundle\Mental\PageMental</parameter>
     </parameters>
 
     <services>
-        <service id="dcms.mental_container" class="%dcms.mental_container.class%">
+        <service id="dcms_page.mental.page" class="%dcms_page.mental.page.class%">
+            <tag name="dcms.mental" />
         </service>
     </services>
 </container>
-

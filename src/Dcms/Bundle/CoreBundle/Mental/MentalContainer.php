@@ -25,30 +25,30 @@ class MentalContainer
      */
     public function registerMental(Mental $mental)
     {
-        $mentalName = $mental->getName();
+        $targetNodeTypeName = $mental->getTargetNodeTypeName();
 
-        if (isset($this->mentals[$mentalName])) {
-            throw new MentalException(sprintf(
+        if (isset($this->mentals[$targetNodeTypeName])) {
+            throw new Exception\MentalException(sprintf(
                 'Mental with name "%s" already registered',
-                $mentalName
+                $targetNodeTypeName
             ));
         }
 
-        $this->mentals[$mental->getName()] = $mental;
+        $this->mentals[$targetNodeTypeName] = $mental;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getMental($mentalName)
+    public function getMental($mentalNodeTypeName)
     {
-        if (!isset($this->mentals[$mentalName])) {
-            throw new MentalException(sprintf(
+        if (!isset($this->mentals[$mentalNodeTypeName])) {
+            throw new Exception\MentalException(sprintf(
                 'Trying to retrieve unknown mental "%s"',
-                $mentalName
+                $mentalNodeTypeName
             ));
         }
 
-        return $this->mentals[$mentalName];
+        return $this->mentals[$mentalNodeTypeName];
     }
 }

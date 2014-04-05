@@ -8,15 +8,20 @@ framework:
     profiler: { only_exceptions: false }
 
 web_profiler:
-    toolbar: true
+    toolbar: false
     intercept_redirects: false
 
 monolog:
+    channels: [ endpoint_router ]
     handlers:
         main:
             type:   stream
             path:   "%kernel.logs_dir%/%kernel.environment%.log"
             level:  debug
+        endpoint_router:
+            type:   stream
+            path:   "%kernel.logs_dir%/endpoint_router.log"
+            channels: [endpoint_router]
         console:
             type:   console
             bubble: false

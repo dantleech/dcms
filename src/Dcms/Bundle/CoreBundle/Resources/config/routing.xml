@@ -13,8 +13,9 @@
         <service id="dcms.router.matcher" class="%dcms.router.matcher.class%">
             <argument type="service" id="doctrine_phpcr" />
             <argument type="service" id="dcms.config" />
-            <argument type="service" id="dcms.mental.container" />
+            <argument type="service" id="dcms.mental_container" />
             <argument type="service" id="dcms.site.context" />
+            <argument type="service" id="monolog.logger.endpoint_router" />
         </service>
 
         <service id="router_listener" class="%router_listener.class%">
