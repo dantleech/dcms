@@ -14,6 +14,7 @@ class DcmsCoreExtension extends Extension
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('config.xml');
         $loader->load('mental.xml');
+        $loader->load('node_finder.xml');
         $loader->load('routing.xml');
         $loader->load('site.xml');
     }

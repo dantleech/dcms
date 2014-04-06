@@ -15,6 +15,9 @@ use Dcms\Bundle\CoreBundle\Site\SiteContext;
 use Dcms\Bundle\CoreBundle\Site\Site;
 use Dcms\Bundle\CoreBundle\Mental\Mental;
 use Psr\Log\LoggerInterface;
+use Dcms\Bundle\CoreBundle\NodeFinder\NodeFinder;
+use PHPCR\PropertyInterface;
+use PHPCR\NodeType\NodeTypeInterface;
 
 class EndpointMatcherSpec extends ObjectBehavior
 {
@@ -25,20 +28,24 @@ class EndpointMatcherSpec extends ObjectBehavior
         Mental $mental,
         SessionInterface $phpcrSession,
         SiteContext $siteContext,
-        NodeInterface $siteNode,
+        NodeInterface $hostNode,
         NodeInterface $routeNode,
+        NodeInterface $siteNode,
         Site $site,
+        NodeFinder $nodeFinder,
         LoggerInterface $logger
     ) {
-        $this->beConstructedWith($managerRegistry, $dcmsConfig, $mentalContainer, $siteContext, $logger);
+        $this->beConstructedWith($managerRegistry, $dcmsConfig, $mentalContainer, $siteContext, $nodeFinder, $logger);
 
         $managerRegistry->getConnection()->willReturn($phpcrSession);
 
-        $phpcrSession->getNode('/dcms/hosts/dantleech.com')->willReturn($siteNode);
+        $phpcrSession->getNode('/dcms/hosts/dantleech.com')->willReturn($hostNode);
         $phpcrSession->getNode('/dcms/sites/dantleech.com/routes/test')->willReturn($routeNode);
+        $phpcrSession->getNode('/dcms/sites/dantleech.com')->willReturn($siteNode);
 
         $dcmsConfig->getHostsPath()->willReturn('/dcms/hosts');
-        $dcmsConfig->getDefaultHost()->willReturn('default.dom');
+        $dcmsConfig->getSitesPath()->willReturn('/dcms/sites');
+        $dcmsConfig->getFallbackSite()->willReturn('default');
         $dcmsConfig->getEndpointFolderName()->willReturn('routes');
         $siteContext->getAbsPathFor('routes')->willReturn('/dcms/sites/dantleech.com/routes');
     }
@@ -53,13 +60,23 @@ class EndpointMatcherSpec extends ObjectBehavior
         SiteContext $siteContext,
         MentalContainer $mentalContainer,
         Mental $mental,
-        NodeInterface $routeNode
+        NodeInterface $routeNode,
+        NodeInterface $hostNode,
+        PropertyInterface $siteProperty,
+        NodeFinder $nodeFinder,
+        NodeInterface $mentalNode,
+        NodeTypeInterface $mentalNodeType
     ) {
-        $routeNode->getProperty('dcms:mental')->willReturn('test_mental');
-        $mentalContainer->getMental('test_mental')->willReturn($mental);
+        $siteProperty->getValue()->willReturn('/dcms/sites/dantleech.com');
+        $hostNode->getProperty('site')->willReturn($siteProperty);
+        $routeNode->getNode('mental')->willReturn($mentalNode);
+        $mentalNode->getPrimaryNodeType()->willReturn($mentalNodeType);
+        $mentalNodeType->getName()->willReturn('test:mental');
+        $mentalContainer->getMental('test:mental')->willReturn($mental);
         $mental->getEndpointDefaults($routeNode)->willReturn(array(
             '_controller' => 'MentalBundle:mental:action'
         ));
+        $nodeFinder->findNode('routes/test')->willReturn($routeNode);
 
         $siteContext->setSite(Argument::type('Dcms\Bundle\CoreBundle\Site\Site'))->shouldBeCalled();
         $request->getHost()->willReturn('dantleech.com');

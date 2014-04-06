@@ -17,6 +17,11 @@ class DefaultDcmsConfigSpec extends ObjectBehavior
         $this->getHostsPath()->shouldReturn('/dcms/hosts');;
     }
 
+    function it_provides_a_method_to_retrieve_the_sites_path()
+    {
+        $this->getSitesPath()->shouldReturn('/dcms/sites');;
+    }
+
     function it_provides_a_method_to_retrieve_the_default_host()
     {
         $this->getDefaultHost()->shouldReturn('default.dom');

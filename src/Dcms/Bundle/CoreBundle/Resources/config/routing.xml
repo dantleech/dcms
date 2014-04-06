@@ -15,6 +15,7 @@
             <argument type="service" id="dcms.config" />
             <argument type="service" id="dcms.mental_container" />
             <argument type="service" id="dcms.site.context" />
+            <argument type="service" id="dcms.node_finder.cascading" />
             <argument type="service" id="monolog.logger.endpoint_router" />
         </service>
 

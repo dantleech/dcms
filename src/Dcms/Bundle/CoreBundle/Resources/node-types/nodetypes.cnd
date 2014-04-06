@@ -23,12 +23,20 @@
 [dcms:endpointFolder]
 + * (dcms:endpoint)
 
+[dcms:template] > mix:lastModified, mix:created
+- source (string) mandatory
+- extends (path)
+
+[dcms:templateFolder]
++ * (dcms:template)
+
 [dcms:endpoint] > mix:referenceable
 + mental (dcms:mental)
 
 [dcms:site] > mix:referenceable, mix:lastModified, mix:created
 + endpoints (dcms:endpointFolder) autocreated
 + mentals (dcms:mentalFolder) autocreated
++ templates (dcms:templateFolder) autocreated
 
 [dcms:siteFolder]
 + * (dcms:site)

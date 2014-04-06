@@ -14,6 +14,9 @@ use Dcms\Bundle\CoreBundle\Site\SiteContext;
 use Dcms\Bundle\CoreBundle\Site\Site;
 use Dcms\Bundle\CoreBundle\Router\Exception\SiteNotFoundException;
 use Psr\Log\LoggerInterface;
+use Dcms\Bundle\CoreBundle\NodeFinder\NodeFinder;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 class EndpointMatcher implements RequestMatcherInterface
 {
@@ -22,53 +25,64 @@ class EndpointMatcher implements RequestMatcherInterface
     protected $mentalContainer;
     protected $siteContext;
     protected $logger;
+    protected $nodeFinder;
 
     public function __construct(
         ManagerRegistry $managerRegistry, 
         DcmsConfig $config, 
         MentalContainer $mentalContainer,
         SiteContext $siteContext,
+        NodeFinder $nodeFinder,
         LoggerInterface $logger
     ) {
         $this->managerRegistry = $managerRegistry;
         $this->config          = $config;
         $this->siteContext     = $siteContext;
+        $this->nodeFinder    = $nodeFinder;
         $this->mentalContainer = $mentalContainer;
         $this->logger          = $logger;
     }
 
     public function matchRequest(Request $request)
     {
-        $host        = $request->getHost();
-        $defaultHost = $this->config->getDefaultHost();
-        $pathInfo    = $request->getPathInfo();
-        $hostsPath   = $this->config->getHostsPath();
+        $host         = $request->getHost();
+        $fallbackSitePath = $this->joinPath([
+            $this->config->getSitesPath(),
+            $this->config->getFallbackSite(),
+        ]);
 
+        $pathInfo     = $request->getPathInfo();
+        $hostsPath    = $this->config->getHostsPath();
         $targetPath  = $this->joinPath([$hostsPath, $host]);
-        $defaultPath = $this->joinPath([$hostsPath, $defaultHost]);
 
         $phpcrSession = $this->managerRegistry->getConnection();
 
-        $try = array(
-            $targetPath,
-            $defaultPath,
-        );
-
         $siteNode = null;
         $hostNode = null;
-        foreach ($try as $path) {
-            try {
-                $hostNode = $phpcrSession->getNode($path);
-                $this->logger->info('Found host "' . $path . '"');
+        $siteNodePath = null;
 
-                try {
-                    $siteNodePath = $hostNode->getProperty('site')->getValue();
-                } catch (PathNotFoundException $e) {
-                    $this->logger->info('  but site property is empty, skipping..');
-                    continue;
-                }
+        try {
+            $hostNode = $phpcrSession->getNode($targetPath);
+            $this->logger->info('Found host "' . $targetPath . '"');
+
+            try {
+                $siteNodePath = $hostNode->getProperty('site')->getValue();
             } catch (PathNotFoundException $e) {
-                $this->logger->info('Could not find host "' . $path . '"');
+                $this->logger->info('  but site property is empty, thats not going to work...');
+                continue;
+            }
+        } catch (PathNotFoundException $e) {
+            $this->logger->info('Could not find host "' . $targetPath . '"');
+        }
+
+
+        $sitePaths = array(
+            $siteNodePath,
+            $fallbackSitePath,
+        );
+
+        foreach ($sitePaths as $siteNodePath) {
+            if (!$siteNodePath) {
                 continue;
             }
 
@@ -85,14 +99,12 @@ class EndpointMatcher implements RequestMatcherInterface
             $this->logger->info('Could not find anything. bye!');
 
             throw new SiteNotFoundException(sprintf(
-                'Could not find a host for "%s" and default host also failed. See log for more details.'
+                'Could not find a host for "%s" and default site also failed. See log for more details.'
             , $host));
         }
 
-        if ($siteNode) {
-            $site = new Site($siteNode);
-            $this->siteContext->setSite($site);
-        }
+        $site = new Site($siteNode);
+        $this->siteContext->setSite($site);
 
         $defaults = $this->matchPathInfo($pathInfo);
 
@@ -109,14 +121,13 @@ class EndpointMatcher implements RequestMatcherInterface
         $phpcrSession = $this->managerRegistry->getConnection();
 
         $routeFolderName = $this->config->getEndpointFolderName();
-        $routeFolderPath = $this->siteContext->getAbsPathFor($routeFolderName);
-        $routeNode       = $phpcrSession->getNode($this->joinPath([$routeFolderPath, $pathInfo]));
+        $relativePath    = $this->joinPath([$routeFolderName, $pathInfo]);
+        $routeNode       = $this->nodeFinder->findNode($relativePath);
 
         if (!$routeNode) {
-            throw new ResourceNotFoundException(sprintf(
-                'Cannot find a route "%s"',
-                $routePath
-            ));
+            throw new RouteNotFoundException(
+                'Could not find endpoint for "' . $pathInfo . '"'
+            );
         }
 
         $deaults = array();

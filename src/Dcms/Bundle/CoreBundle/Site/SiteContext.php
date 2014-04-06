@@ -33,4 +33,25 @@ class SiteContext
         $basePath = $this->getSite()->getNode()->getPath();
         return $basePath . '/' . $relPath;
     }
+
+    /**
+     * Return the paths of this site and any ancestoral sites
+     *
+     * @return string[]
+     */
+    public function getSiteCascadePaths()
+    {
+        $sitePath = $this->site->getPath();
+        $paths[] = $sitePath;
+
+        while ($index = strrpos($sitePath, 'sites')) {
+            $sitePath = substr($sitePath, 0, $index - 1);
+            if ($sitePath) {
+                $paths[] = $sitePath;
+            }
+        }
+
+        return $paths;
+    }
+
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="dcms.node_finder.cascading.class">Dcms\Bundle\CoreBundle\NodeFinder\CascadingNodeFinder</parameter>
+    </parameters>
+
+    <services>
+        <service id="dcms.node_finder.cascading" class="%dcms.node_finder.cascading.class%">
+            <argument type="service" id="doctrine_phpcr" />
+            <argument type="service" id="dcms.config" />
+            <argument type="service" id="dcms.site.context" />
+        </service>
+    </services>
+</container>
+

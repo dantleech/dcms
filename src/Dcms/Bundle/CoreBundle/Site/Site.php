@@ -3,6 +3,7 @@
 namespace Dcms\Bundle\CoreBundle\Site;
 
 use PHPCR\NodeInterface;
+use PHPCR\Util\PathHelper;
 
 class Site
 {
@@ -16,5 +17,10 @@ class Site
     public function getNode()
     {
         return $this->siteNode;
+    }
+
+    public function getPath()
+    {
+        return $this->siteNode->getPath();
     }
 }

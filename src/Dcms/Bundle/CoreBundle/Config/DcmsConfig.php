@@ -9,9 +9,14 @@ class DcmsConfig
         return '/dcms/hosts';
     }
 
-    public function getDefaultHost()
+    public function getSitesPath()
     {
-        return 'default.dom';
+        return '/dcms/sites';
+    }
+
+    public function getFallbackSite()
+    {
+        return 'dantleech';
     }
 
     public function getEndpointFolderName()
